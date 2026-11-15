@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0b0c"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="עוזר הופעה">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>עוזר הופעה</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&family=Karantina:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0c;--card:#151517;--line:#2a2a2e;--tx:#f1efe9;--mu:#8d8a84;--acc:#f5a524;--ok:#3ddc84;--bad:#ff5a5f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Assistant,-apple-system,sans-serif}
+body{padding:calc(env(safe-area-inset-top) + 28px) 16px calc(env(safe-area-inset-bottom) + 24px);min-height:100vh;display:flex;flex-direction:column}
+.logo{width:84px;height:84px;border-radius:20px;display:block;margin:10px auto 6px}
+h1{font-family:Karantina,sans-serif;font-size:58px;line-height:1;text-align:center;margin:6px 0 4px;font-weight:700}
+.sub{text-align:center;color:var(--mu);font-size:16px;margin-bottom:26px}
+.st{display:flex;gap:10px;align-items:center;justify-content:center;font-size:19px;font-weight:600;min-height:30px;text-align:center}
+.sp{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--acc);animation:r .8s linear infinite;flex:none}
+@keyframes r{to{transform:rotate(360deg)}}
+.note{color:var(--mu);font-size:15px;text-align:center;margin-top:8px;line-height:1.5}
+button,a.b{display:block;width:100%;border:0;border-radius:16px;font-family:inherit;font-weight:800;text-align:center;text-decoration:none;cursor:pointer}
+.go{height:96px;margin-top:26px;background:var(--acc);color:#141414;font-family:Karantina,sans-serif;font-size:52px;line-height:96px;font-weight:700}
+.sec{height:56px;margin-top:12px;background:var(--card);border:1px solid var(--line);color:var(--tx);font-size:18px}
+.box{margin-top:22px;border:1px solid var(--line);border-radius:16px;padding:14px 16px;font-size:16px;line-height:1.55;background:var(--card)}
+.box ol{padding-right:20px;margin:6px 0}
+.bad{border-color:var(--bad)}
+.hide{display:none!important}
+.foot{margin-top:auto;padding-top:24px;text-align:center;color:var(--mu);font-size:13px}
+</style></head><body>
+<img class="logo" src="icons/icon-192.png" alt="">
+<h1>עוזר הופעה</h1>
+<div class="sub">שלט מהטלפון</div>
+<div class="st" id="st"><span class="sp" id="sp"></span><span id="stt">מחפש את המק…</span></div>
+<div class="note" id="note"></div>
+<a class="b go hide" id="go" href="#">פתח את השלט</a>
+<button class="sec hide" id="inst">📲 להתקין כאפליקציה במסך הבית</button>
+<button class="sec hide" id="again">🔄 לחפש שוב</button>
+<div class="box hide" id="howto"></div>
+<div class="box bad hide" id="nokey">הקישור לא שלם. במק, בחלון ההופעה, לוחצים ⚙️ וסורקים את הריבוע במצלמה של הטלפון.</div>
+<div class="foot">הטלפון והמק צריכים להיות באותה רשת: Wi‑Fi של הבית, של האולם, או נקודה חמה.</div>
+<script>
+var SB='https://dmhxovlepdoobkoiyjhj.supabase.co',
+ AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtaHhvdmxlcGRvb2Jrb2l5amhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNDUxNDIsImV4cCI6MjEwNzkyMTE0Mn0.qao1CRL1QWJhMnWsAaPXKt-WxbgySqIlH68iIdCYH1o';
+function $(i){return document.getElementById(i)}
+function get(n){try{return localStorage.getItem('ozer.'+n)}catch(e){return null}}
+function put(n,v){try{localStorage.setItem('ozer.'+n,v)}catch(e){}}
+var q=new URLSearchParams(location.search), D=q.get('d')||get('d'), K=q.get('k')||get('k');
+if(q.get('d')&&q.get('k')){put('d',D);put('k',K);history.replaceState(null,'',location.pathname)} // הקישור נשמר בטלפון, ולא נשאר בשורת הכתובת
+var APP=matchMedia('(display-mode: standalone)').matches||navigator.standalone, IOS=/iPhone|iPad|iPod/.test(navigator.userAgent), PROMPT=null;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+addEventListener('beforeinstallprompt',function(e){e.preventDefault();PROMPT=e;if(!APP)$('inst').classList.remove('hide')});
+function ago(t){var m=Math.round((Date.now()-new Date(t))/60000);return m<1?'עכשיו':m<60?'לפני '+m+' דקות':m<1440?'לפני '+Math.round(m/60)+' שעות':'לפני '+Math.round(m/1440)+' ימים'}
+function status(txt,spin,note){$('stt').textContent=txt;$('sp').classList.toggle('hide',!spin);$('note').textContent=note||''}
+function ready(url,note){
+ $('go').href=url;$('go').classList.remove('hide');$('again').classList.remove('hide');
+ if(!APP&&!PROMPT)$('inst').classList.remove('hide');
+ if(APP){status('פותח את השלט…',true,note);location.replace(url)}  // מהאייקון: ישר לשלט
+ else status('✅ המק נמצא',false,note);
+}
+function find(){
+ if(!D||!K){status('',false);$('nokey').classList.remove('hide');return}
+ status('מחפש את המק…',true);
+ var ctl=new AbortController();setTimeout(function(){ctl.abort()},6000);
+ fetch(SB+'/rest/v1/rpc/finder_get',{method:'POST',signal:ctl.signal,headers:{apikey:AK,Authorization:'Bearer '+AK,'Content-Type':'application/json'},body:JSON.stringify({p_id:D})})
+ .then(function(r){if(!r.ok)throw r.status;return r.json()})
+ .then(function(rows){
+  var x=rows&&rows[0];
+  if(!x){status('המק עוד לא נרשם',false,'פותחים את עוזר הופעה במק, ומחכים דקה.');$('again').classList.remove('hide');return}
+  var url='http://'+x.ip+':'+x.port+'/r?k='+encodeURIComponent(K);put('last',url);
+  var old=Date.now()-new Date(x.at)>3*60000;
+  ready(url,old?'⚠️ המק דיווח '+ago(x.at)+'. אם השלט לא נפתח, בודקים שעוזר הופעה פתוח במק.':'');
+ })
+ .catch(function(){
+  var last=get('last');
+  if(last)ready(last,'אין אינטרנט כרגע, אז משתמשים בכתובת האחרונה של המק.');
+  else{status('אין חיבור לאינטרנט',false,'צריך אינטרנט כדי למצוא את המק בפעם הראשונה.');$('again').classList.remove('hide')}
+ });
+}
+$('again').onclick=find;
+$('inst').onclick=function(){
+ if(PROMPT){PROMPT.prompt();PROMPT.userChoice.then(function(){PROMPT=null;$('inst').classList.add('hide')});return}
+ var h=$('howto');h.classList.toggle('hide');
+ h.innerHTML=IOS?'<ol><li>לוחצים על כפתור השיתוף ⬆︎ למטה ב־Safari.</li><li>בוחרים <b>״הוספה למסך הבית״</b>, ואז <b>״הוסף״</b>.</li></ol>'
+  :'<ol><li>בכרום, לוחצים על שלוש הנקודות ⋮ למעלה.</li><li>בוחרים <b>״התקנה ויצירת קיצור דרך״</b> (או ״התקנת אפליקציה״).</li><li>לוחצים <b>״התקנה״</b>.</li></ol>';
+};
+find();
+</script>
+</body></html>
